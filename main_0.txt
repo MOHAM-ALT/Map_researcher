@@ -1,0 +1,1265 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Map_researcher 0.3V - Hotel data collection and analysis application
+"""
+
+# Import essential libraries
+import os
+import sys
+import time
+import logging
+import argparse
+import math
+# Try to import webbrowser for opening maps
+# تهيئة البيئة واستيراد المكتبات مع معالجة الأخطاء
+
+# Command-line interface manager class
+class CommandLineInterface:
+    """Class for managing the command-line interface"""
+    
+    def __init__(self, db: Database, scraper: HotelScraper):
+        """
+        Initialize command-line interface
+        
+        Args:
+            db (Database): Database instance
+            scraper (HotelScraper): HotelScraper instance
+        """
+        self.db = db
+        self.scraper = scraper
+        self.console = Console()
+        
+    # Main menu for interactive mode
+    def main_menu(self):
+        """Display main menu and handle user commands"""
+        menu_options = {
+            '1': 'Search hotels by location',
+            '2': 'Search hotels by name',
+            '3': 'View all hotels in database',
+            '4': 'Export hotel data',
+            '5': 'View statistics',
+            '6': 'Generate map visualization',
+            '7': 'Advanced search options',
+            '8': 'Update/delete hotel records',
+            '9': 'Get detailed info for a hotel',
+            '0': 'Exit'
+        }
+        
+        while True:
+            self.console.print("\n[bold blue]MAP RESEARCHER 0.3V - HOTEL DATA COLLECTION TOOL[/bold blue]")
+            self.console.print("=" * 60)
+            
+            for key, value in menu_options.items():
+                self.console.print(f"[green]{key}[/green]: {value}")
+            
+            choice = input("\nEnter option number: ")
+            
+            if choice == '0':
+                self.console.print("[yellow]Exiting program. Goodbye![/yellow]")
+                break
+                
+            elif choice == '1':
+                self.search_by_location_menu()
+                
+            elif choice == '2':
+                self.search_by_name_menu()
+                
+            elif choice == '3':
+                self.view_all_hotels()
+                
+            elif choice == '4':
+                self.export_data_menu()
+                
+            elif choice == '5':
+                self.view_statistics()
+                
+            elif choice == '6':
+                self.generate_map_menu()
+                
+            elif choice == '7':
+                self.advanced_search_menu()
+                
+            elif choice == '8':
+                self.update_delete_menu()
+                
+            elif choice == '9':
+                self.detailed_info_menu()
+                
+            else:
+                self.console.print("[red]Invalid option. Please try again.[/red]")
+    
+    # Stub methods for menu options (to be implemented with actual functionality)
+    def search_by_location_menu(self):
+        self.console.print("[yellow]Search by location functionality not implemented yet.[/yellow]")
+        input("Press Enter to continue...")
+    
+    def search_by_name_menu(self):
+        self.console.print("[yellow]Search by name functionality not implemented yet.[/yellow]")
+        input("Press Enter to continue...")
+    
+    def view_all_hotels(self):
+        self.console.print("[yellow]View all hotels functionality not implemented yet.[/yellow]")
+        input("Press Enter to continue...")
+    
+    def export_data_menu(self):
+        self.console.print("[yellow]Export data functionality not implemented yet.[/yellow]")
+        input("Press Enter to continue...")
+    
+    def view_statistics(self):
+        self.console.print("[yellow]View statistics functionality not implemented yet.[/yellow]")
+        input("Press Enter to continue...")
+    
+    def generate_map_menu(self):
+        self.console.print("[yellow]Generate map functionality not implemented yet.[/yellow]")
+        input("Press Enter to continue...")
+    
+    def advanced_search_menu(self):
+        self.console.print("[yellow]Advanced search functionality not implemented yet.[/yellow]")
+        input("Press Enter to continue...")
+    
+    def update_delete_menu(self):
+        self.console.print("[yellow]Update/delete functionality not implemented yet.[/yellow]")
+        input("Press Enter to continue...")
+    
+    def detailed_info_menu(self):
+        self.console.print("[yellow]Detailed info functionality not implemented yet.[/yellow]")
+        input("Press Enter to continue...")
+
+# Main function to run when executed directly
+def main():
+    # Create command-line interface
+    console = Console()
+    
+    console.print("[bold blue]MAP RESEARCHER 0.3V - HOTEL DATA COLLECTION TOOL[/bold blue]")
+    console.print("=" * 60)
+    console.print("Welcome to the Map Researcher tool!")
+    
+    # Create instances
+    try:
+        import json
+        config = {}
+        if os.path.exists('config/config.json'):
+            with open('config/config.json', 'r') as f:
+                config = json.load(f)
+        
+        # Get API keys from config
+        api_keys = config.get('api_keys', {})
+        
+        # Get database settings
+        db_settings = config.get('database', {'type': 'sqlite', 'path': 'data/hotels.db'})
+        
+        # Initialize database
+        db = Database(db_settings.get('type', 'sqlite'), db_settings.get('path', 'data/hotels.db'))
+        
+        # Initialize scraper
+        scraper = HotelScraper(api_keys)
+        
+        # Initialize CLI
+        cli = CommandLineInterface(db, scraper)
+        
+        # Run main menu
+        cli.main_menu()
+        
+    except Exception as e:
+        console.print(f"[red]Error initializing application: {e}[/red]")
+        import traceback
+        traceback.print_exc()
+        input("Press Enter to exit...")
+    finally:
+        # Ensure database connection is closed
+        if 'db' in locals() and hasattr(db, 'close'):
+            db.close()
+
+try:
+    import bootstrap
+    bootstrap.run_bootstrap()
+except ImportError:
+    print("Warning: bootstrap module not found, some features may be limited")
+
+# استيراد tabulate مع معالجة الخطأ
+try:
+    from tabulate import tabulate
+except ImportError:
+    # بديل بسيط لـ tabulate
+    def tabulate(data, headers=None, tablefmt="simple"):
+        if not data:
+            return ""
+        
+        result = ""
+        if headers:
+            result += " | ".join([str(h) for h in headers]) + "\n"
+            result += "-" * len(result) + "\n"
+        
+        for row in data:
+            result += " | ".join([str(cell) for cell in row]) + "\n"
+        
+        return result
+
+# استيراد rich مع معالجة الخطأ
+try:
+    from rich.console import Console
+    from rich.table import Table
+    from rich.progress import track
+except ImportError:
+    # بدائل بسيطة لمكونات rich
+    class Console:
+        def print(self, *args, **kwargs):
+            print(*args)
+    
+    class Table:
+        def __init__(self, *args, **kwargs):
+            self.title = kwargs.get('title', '')
+            self.rows = []
+            self.headers = []
+        
+        def add_column(self, header, *args, **kwargs):
+            self.headers.append(header)
+        
+        def add_row(self, *cells):
+            self.rows.append(cells)
+        
+        def __str__(self):
+            if self.title:
+                result = self.title + "\n" + "=" * len(self.title) + "\n\n"
+            else:
+                result = ""
+            
+            if self.headers:
+                result += " | ".join(self.headers) + "\n"
+                result += "-" * len(result) + "\n"
+            
+            for row in self.rows:
+                result += " | ".join([str(cell) for cell in row]) + "\n"
+            
+            return result
+    
+    def track(iterable, description=None, total=None):
+        if description:
+            print(description)
+        return iterable
+
+# استيراد folium مع معالجة الخطأ
+try:
+    import folium
+except ImportError:
+    # بديل بسيط لـ folium يظهر تحذيرات بدلاً من إيقاف البرنامج
+    class Map:
+        def __init__(self, *args, **kwargs):
+            print("Warning: folium not available. Map features limited.")
+            self._children = {}
+        
+        def add_to(self, obj):
+            return self
+        
+        def add_child(self, child, name=None):
+            return self
+        
+        def save(self, path):
+            with open(path, "w") as f:
+                f.write("<html><body><h1>Map Not Available</h1><p>Folium library not installed</p></body></html>")
+            print(f"Created placeholder map at {path}")
+            return path
+    
+    class Marker:
+        def __init__(self, *args, **kwargs):
+            pass
+        
+        def add_to(self, obj):
+            return self
+    
+    class Icon:
+        def __init__(self, *args, **kwargs):
+            pass
+    
+    # إنشاء وحدة folium بسيطة
+    folium = type('folium', (), {
+        'Map': Map,
+        'Marker': Marker,
+        'Icon': Icon
+    })
+
+try:
+    import webbrowser
+except ImportError:
+    print("Warning: webbrowser module not available. Opening maps in browser will not work.")
+
+# Try to import additional libraries with error handling
+try:
+    from tabulate import tabulate
+except ImportError:
+    print("Warning: tabulate library not found. Installing required packages...")
+    try:
+        import subprocess
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "tabulate"])
+        from tabulate import tabulate
+        print("tabulate installed successfully.")
+    except:
+        print("Failed to install tabulate. Some display features may not work properly.")
+        
+        # Define a simple tabulate function as fallback
+        def tabulate(data, headers=None, tablefmt="simple"):
+            if not data:
+                return ""
+            
+            result = ""
+            if headers:
+                result += " | ".join(headers) + "\n"
+                result += "-" * (len(result)) + "\n"
+            
+            for row in data:
+                result += " | ".join(str(cell) for cell in row) + "\n"
+                
+            return result
+
+try:
+    from rich.console import Console
+    from rich.table import Table
+    from rich.progress import track
+except ImportError:
+    print("Warning: rich library not found. Installing required packages...")
+    try:
+        import subprocess
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "rich"])
+        from rich.console import Console
+        from rich.table import Table
+        from rich.progress import track
+        print("rich installed successfully.")
+    except:
+        print("Failed to install rich. Will use alternative display methods.")
+        
+        # Define simple alternatives
+        class DummyTable:
+            def __init__(self, *args, **kwargs):
+                self.rows = []
+                self.headers = []
+                
+            def add_column(self, header, *args, **kwargs):
+                self.headers.append(header)
+                
+            def add_row(self, *cells):
+                self.rows.append(cells)
+                
+            def __str__(self):
+                return tabulate(self.rows, self.headers)
+            
+        class DummyConsole:
+            def print(self, *args, **kwargs):
+                if isinstance(args[0], DummyTable):
+                    print(str(args[0]))
+                else:
+                    print(*args)
+                    
+        def track(iterable, description=None, total=None):
+            if description:
+                print(description)
+            return iterable
+        
+        Console = DummyConsole
+        Table = DummyTable
+
+try:
+    import folium
+except ImportError:
+    print("Warning: folium library not found. Installing required packages...")
+    try:
+        import subprocess
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "folium"])
+        import folium
+        print("folium installed successfully.")
+    except:
+        print("Failed to install folium. Map visualization will not be available.")
+from datetime import datetime, timedelta
+import pandas as pd
+import sqlite3
+import csv
+import json
+import requests
+from typing import Dict, List, Tuple, Optional, Any, Union
+import re
+
+# Try to import colorama with error handling if not available
+try:
+    from colorama import Fore, Back, Style, init
+    # Initialize color system
+    init(autoreset=True)
+    COLORAMA_AVAILABLE = True
+except ImportError:
+    print("Warning: colorama library not found. Installing required packages...")
+    # Try to install the library
+    try:
+        import subprocess
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "colorama"])
+        from colorama import Fore, Back, Style, init
+        init(autoreset=True)
+        COLORAMA_AVAILABLE = True
+        print("colorama installed successfully.")
+    except:
+        print("Failed to install colorama. Will continue without colored output.")
+        # Define alternative color variables if library is not available
+        class DummyColor:
+            def __getattr__(self, name):
+                return ""
+        Fore = Back = Style = DummyColor()
+        COLORAMA_AVAILABLE = False
+
+# Setup logging system
+try:
+    log_dir = os.path.dirname("logs/hotel_researcher.log")
+    os.makedirs(log_dir, exist_ok=True)
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler("logs/hotel_researcher.log", encoding='utf-8'),
+            logging.StreamHandler()
+        ]
+    )
+except Exception as e:
+    print(f"Error setting up logging: {e}. Defaulting to console logging only.")
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
+logger = logging.getLogger("Map_researcher")
+
+
+# Database class - handles different types of databases
+class Database:
+    """Class for handling different database types"""
+    
+    def __init__(self, db_type: str, db_path: str):
+        """
+        Initialize database connection
+        
+        Args:
+            db_type (str): Database type ('sqlite', 'csv', 'excel', 'postgresql')
+            db_path (str): Database path or filename
+        """
+        # Store database type and path
+        self.db_type = db_type.lower()
+        self.db_path = db_path
+        self.conn = None
+        self.cursor = None
+        
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        
+        # Initialize database connection based on type
+        if self.db_type == 'sqlite':
+            self.conn = sqlite3.connect(db_path)
+            self.cursor = self.conn.cursor()
+            self._setup_sqlite_schema()
+        elif self.db_type == 'postgresql':
+            # Temporarily disable PostgreSQL and use SQLite instead
+            logger.warning("PostgreSQL support temporarily disabled. Using SQLite instead.")
+            print(f"{Fore.YELLOW}PostgreSQL support temporarily disabled. Using SQLite instead.{Style.RESET_ALL}")
+            # Use SQLite as an alternative
+            self.db_type = 'sqlite'
+            default_path = "data/hotels.db"
+            self.db_path = default_path
+            self.conn = sqlite3.connect(default_path)
+            self.cursor = self.conn.cursor()
+            self._setup_sqlite_schema()
+        elif self.db_type not in ['csv', 'excel']:
+            logger.error(f"Unsupported database type: {db_type}")
+            print(f"{Fore.RED}Unsupported database type: {db_type}. Using SQLite instead.{Style.RESET_ALL}")
+            # Use SQLite as an alternative
+            self.db_type = 'sqlite'
+            default_path = "data/hotels.db"
+            self.db_path = default_path
+            self.conn = sqlite3.connect(default_path)
+            self.cursor = self.conn.cursor()
+            self._setup_sqlite_schema()
+    
+    # Create SQLite database structure
+    def _setup_sqlite_schema(self):
+        """Create SQLite database tables"""
+        # Hotels table
+        self.cursor.execute('''
+        CREATE TABLE IF NOT EXISTS hotels (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            address TEXT,
+            city TEXT,
+            country TEXT,
+            latitude REAL,
+            longitude REAL,
+            phone TEXT,
+            email TEXT,
+            website TEXT,
+            stars INTEGER,
+            price_range TEXT,
+            facilities TEXT,
+            legal_status TEXT,
+            data_source TEXT,
+            last_updated TIMESTAMP,
+            google_maps_match TEXT,
+            coordinate_distance REAL,
+            additional_info TEXT
+        )
+        ''')
+        
+        # Searches table
+        self.cursor.execute('''
+        CREATE TABLE IF NOT EXISTS searches (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            query TEXT NOT NULL,
+            location TEXT,
+            timestamp TIMESTAMP,
+            results_count INTEGER,
+            search_params TEXT
+        )
+        ''')
+        
+        # Save changes
+        self.conn.commit()
+    
+    # Create PostgreSQL database structure
+    def _setup_postgresql_schema(self):
+        """Create PostgreSQL database tables"""
+        # Hotels table
+        self.cursor.execute('''
+        CREATE TABLE IF NOT EXISTS hotels (
+            id SERIAL PRIMARY KEY,
+            name TEXT NOT NULL,
+            address TEXT,
+            city TEXT,
+            country TEXT,
+            latitude REAL,
+            longitude REAL,
+            phone TEXT,
+            email TEXT,
+            website TEXT,
+            stars INTEGER,
+            price_range TEXT,
+            facilities TEXT,
+            legal_status TEXT,
+            data_source TEXT,
+            last_updated TIMESTAMP,
+            google_maps_match TEXT,
+            coordinate_distance REAL,
+            additional_info TEXT
+        )
+        ''')
+        
+        # Searches table
+        self.cursor.execute('''
+        CREATE TABLE IF NOT EXISTS searches (
+            id SERIAL PRIMARY KEY,
+            query TEXT NOT NULL,
+            location TEXT,
+            timestamp TIMESTAMP,
+            results_count INTEGER,
+            search_params TEXT
+        )
+        ''')
+        
+        # Save changes
+        self.conn.commit()
+    
+    # Save hotel information to the database
+    def save_hotel(self, hotel_data: Dict[str, Any]) -> int:
+        """
+        Save hotel information to the database
+        
+        Args:
+            hotel_data (Dict): Hotel data
+            
+        Returns:
+            int: Hotel ID
+        """
+        # Save to SQL database
+        if self.db_type == 'sqlite' or self.db_type == 'postgresql':
+            # Add update date
+            hotel_data['last_updated'] = datetime.now()
+            
+            # Prepare input values
+            columns = ', '.join(hotel_data.keys())
+            placeholders = ', '.join(['?' for _ in hotel_data])
+            
+            # Modify tags for PostgreSQL
+            if self.db_type == 'postgresql':
+                placeholders = ', '.join(['%s' for _ in hotel_data])
+            
+            # Create insert query
+            query = f"INSERT INTO hotels ({columns}) VALUES ({placeholders})"
+            
+            # Execute query
+            self.cursor.execute(query, list(hotel_data.values()))
+            self.conn.commit()
+            
+            # Return added hotel ID
+            if self.db_type == 'sqlite':
+                return self.cursor.lastrowid
+            else:
+                self.cursor.execute("SELECT lastval()")
+                return self.cursor.fetchone()[0]
+        
+        # Save to CSV file
+        elif self.db_type == 'csv':
+            # Add update date
+            hotel_data['last_updated'] = datetime.now().isoformat()
+            
+            # Check if file exists
+            file_exists = os.path.isfile(self.db_path)
+            
+            # Write data to CSV file
+            with open(self.db_path, mode='a', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=hotel_data.keys())
+                
+                # Write headers if file is new
+                if not file_exists:
+                    writer.writeheader()
+                
+                writer.writerow(hotel_data)
+                
+            # Read file to get row count (to return approximate ID)
+            with open(self.db_path, mode='r', encoding='utf-8') as f:
+                return sum(1 for _ in f) - 1  # Subtract 1 to account for column header
+        
+        # Save to Excel file
+        elif self.db_type == 'excel':
+            # Add update date
+            hotel_data['last_updated'] = datetime.now()
+            
+            # Check if file exists
+            if os.path.isfile(self.db_path):
+                # Read existing file
+                df = pd.read_excel(self.db_path)
+                
+                # Add new data
+                new_row = pd.DataFrame([hotel_data])
+                df = pd.concat([df, new_row], ignore_index=True)
+            else:
+                # Create new DataFrame
+                df = pd.DataFrame([hotel_data])
+            
+            # Save to Excel file
+            df.to_excel(self.db_path, index=False)
+            
+            # Return row count as ID
+            return len(df)
+    
+    # Save search query to the database
+    def save_search(self, search_data: Dict[str, Any]) -> int:
+        """
+        Save search query to the database
+        
+        Args:
+            search_data (Dict): Search data
+            
+        Returns:
+            int: Search ID
+        """
+        # Save to SQL database
+        if self.db_type == 'sqlite' or self.db_type == 'postgresql':
+            # Add search time
+            search_data['timestamp'] = datetime.now()
+            
+            # Convert search parameters to JSON if present
+            if 'search_params' in search_data and isinstance(search_data['search_params'], dict):
+                search_data['search_params'] = json.dumps(search_data['search_params'])
+            
+            # Prepare input values
+            columns = ', '.join(search_data.keys())
+            placeholders = ', '.join(['?' for _ in search_data])
+            
+            # Modify tags for PostgreSQL
+            if self.db_type == 'postgresql':
+                placeholders = ', '.join(['%s' for _ in search_data])
+            
+            # Create insert query
+            query = f"INSERT INTO searches ({columns}) VALUES ({placeholders})"
+            
+            # Execute query
+            self.cursor.execute(query, list(search_data.values()))
+            self.conn.commit()
+            
+            # Return added search ID
+            if self.db_type == 'sqlite':
+                return self.cursor.lastrowid
+            else:
+                self.cursor.execute("SELECT lastval()")
+                return self.cursor.fetchone()[0]
+        
+        # We won't store queries in CSV or Excel in this example
+        # Can be added in the future if needed
+        
+        return -1
+    
+    # Search for hotels using different criteria
+    def search_hotels(self, query: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Search for hotels using different criteria
+        
+        Args:
+            query (Dict): Search criteria
+            
+        Returns:
+            List[Dict]: List of hotels matching criteria
+        """
+        # Search in SQL database
+        if self.db_type == 'sqlite' or self.db_type == 'postgresql':
+            # Build search query
+            conditions = []
+            params = []
+            
+            for key, value in query.items():
+                if value:
+                    if isinstance(value, str) and '%' in value:
+                        # Search using LIKE
+                        conditions.append(f"{key} LIKE ?")
+                        params.append(value)
+                    else:
+                        # Search with exact match
+                        conditions.append(f"{key} = ?")
+                        params.append(value)
+            
+            # Modify tags for PostgreSQL
+            if self.db_type == 'postgresql':
+                conditions = [c.replace('?', '%s') for c in conditions]
+            
+            # Create final query
+            sql_query = "SELECT * FROM hotels"
+            if conditions:
+                sql_query += " WHERE " + " AND ".join(conditions)
+            
+            # Execute query
+            self.cursor.execute(sql_query, params)
+            
+            # Retrieve results
+            columns = [desc[0] for desc in self.cursor.description]
+            results = []
+            
+            for row in self.cursor.fetchall():
+                results.append(dict(zip(columns, row)))
+            
+            return results
+        
+        # Search in CSV file
+        elif self.db_type == 'csv':
+            # Read CSV file
+            if not os.path.isfile(self.db_path):
+                return []
+            
+            df = pd.read_csv(self.db_path, encoding='utf-8')
+            
+            # Apply search criteria
+            for key, value in query.items():
+                if value and key in df.columns:
+                    if isinstance(value, str) and '%' in value:
+                        # Search using contains
+                        value = value.replace('%', '')
+                        df = df[df[key].str.contains(value, na=False)]
+                    else:
+                        # Search with exact match
+                        df = df[df[key] == value]
+            
+            # Convert results to list of dictionaries
+            return df.to_dict('records')
+        
+        # Search in Excel file
+        elif self.db_type == 'excel':
+            # Read Excel file
+            if not os.path.isfile(self.db_path):
+                return []
+            
+            df = pd.read_excel(self.db_path)
+            
+            # Apply search criteria
+            for key, value in query.items():
+                if value and key in df.columns:
+                    if isinstance(value, str) and '%' in value:
+                        # Search using contains
+                        value = value.replace('%', '')
+                        df = df[df[key].str.contains(value, na=False)]
+                    else:
+                        # Search with exact match
+                        df = df[df[key] == value]
+            
+            # Convert results to list of dictionaries
+            return df.to_dict('records')
+    
+    # Get all hotels from database
+    def get_all_hotels(self) -> List[Dict[str, Any]]:
+        """
+        Get all hotels from the database
+        
+        Returns:
+            List[Dict]: List of all hotels
+        """
+        return self.search_hotels({})
+    
+    # Get hotel by ID
+    def get_hotel_by_id(self, hotel_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Get hotel by ID
+        
+        Args:
+            hotel_id (int): Hotel ID
+            
+        Returns:
+            Dict: Hotel data or None if not found
+        """
+        results = self.search_hotels({"id": hotel_id})
+        return results[0] if results else None
+    
+    # Update hotel information
+    def update_hotel(self, hotel_id: int, update_data: Dict[str, Any]) -> bool:
+        """
+        Update hotel information
+        
+        Args:
+            hotel_id (int): Hotel ID
+            update_data (Dict): Updated hotel data
+            
+        Returns:
+            bool: Success status
+        """
+        # Update in SQL database
+        if self.db_type == 'sqlite' or self.db_type == 'postgresql':
+            # Add update date
+            update_data['last_updated'] = datetime.now()
+            
+            # Build update query
+            updates = []
+            params = []
+            
+            for key, value in update_data.items():
+                updates.append(f"{key} = ?")
+                params.append(value)
+            
+            # Modify tags for PostgreSQL
+            if self.db_type == 'postgresql':
+                updates = [u.replace('?', '%s') for u in updates]
+            
+            # Add hotel ID
+            params.append(hotel_id)
+            
+            # Create final query
+            query = f"UPDATE hotels SET {', '.join(updates)} WHERE id = ?"
+            if self.db_type == 'postgresql':
+                query = query.replace('?', '%s')
+            
+            # Execute query
+            self.cursor.execute(query, params)
+            self.conn.commit()
+            
+            return self.cursor.rowcount > 0
+        
+        # Update in CSV file
+        elif self.db_type == 'csv':
+            # Add update date
+            update_data['last_updated'] = datetime.now().isoformat()
+            
+            # Check if file exists
+            if not os.path.isfile(self.db_path):
+                return False
+            
+            # Read CSV file
+            df = pd.read_csv(self.db_path, encoding='utf-8')
+            
+            # Find hotel by ID
+            if 'id' not in df.columns or hotel_id not in df['id'].values:
+                return False
+            
+            # Update data
+            for key, value in update_data.items():
+                if key in df.columns:
+                    df.loc[df['id'] == hotel_id, key] = value
+            
+            # Save to CSV file
+            df.to_csv(self.db_path, index=False, encoding='utf-8')
+            
+            return True
+        
+        # Update in Excel file
+        elif self.db_type == 'excel':
+            # Add update date
+            update_data['last_updated'] = datetime.now()
+            
+            # Check if file exists
+            if not os.path.isfile(self.db_path):
+                return False
+            
+            # Read Excel file
+            df = pd.read_excel(self.db_path)
+            
+            # Find hotel by ID
+            if 'id' not in df.columns or hotel_id not in df['id'].values:
+                return False
+            
+            # Update data
+            for key, value in update_data.items():
+                if key in df.columns:
+                    df.loc[df['id'] == hotel_id, key] = value
+            
+            # Save to Excel file
+            df.to_excel(self.db_path, index=False)
+            
+            return True
+    
+    # Delete hotel from database
+    def delete_hotel(self, hotel_id: int) -> bool:
+        """
+        Delete hotel from database
+        
+        Args:
+            hotel_id (int): Hotel ID
+            
+        Returns:
+            bool: Success status
+        """
+        # Delete from SQL database
+        if self.db_type == 'sqlite' or self.db_type == 'postgresql':
+            # Create delete query
+            query = "DELETE FROM hotels WHERE id = ?"
+            if self.db_type == 'postgresql':
+                query = query.replace('?', '%s')
+            
+            # Execute query
+            self.cursor.execute(query, (hotel_id,))
+            self.conn.commit()
+            
+            return self.cursor.rowcount > 0
+        
+        # Delete from CSV file
+        elif self.db_type == 'csv':
+            # Check if file exists
+            if not os.path.isfile(self.db_path):
+                return False
+            
+            # Read CSV file
+            df = pd.read_csv(self.db_path, encoding='utf-8')
+            
+            # Find hotel by ID
+            if 'id' not in df.columns or hotel_id not in df['id'].values:
+                return False
+            
+            # Delete row
+            df = df[df['id'] != hotel_id]
+            
+            # Save to CSV file
+            df.to_csv(self.db_path, index=False, encoding='utf-8')
+            
+            return True
+        
+        # Delete from Excel file
+        elif self.db_type == 'excel':
+            # Check if file exists
+            if not os.path.isfile(self.db_path):
+                return False
+            
+            # Read Excel file
+            df = pd.read_excel(self.db_path)
+            
+            # Find hotel by ID
+            if 'id' not in df.columns or hotel_id not in df['id'].values:
+                return False
+            
+            # Delete row
+            df = df[df['id'] != hotel_id]
+            
+            # Save to Excel file
+            df.to_excel(self.db_path, index=False)
+            
+            return True
+    
+    # Export data to different formats
+    def export_data(self, output_format: str, output_path: str, query: Dict[str, Any] = None) -> bool:
+        """
+        Export data to different formats
+        
+        Args:
+            output_format (str): Output format (csv, excel, json)
+            output_path (str): Output file path
+            query (Dict): Search criteria (None for all data)
+            
+        Returns:
+            bool: Success status
+        """
+        # Get data
+        data = self.search_hotels(query or {})
+        
+        if not data:
+            logger.warning("No data to export")
+            return False
+        
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        # Export based on format
+        output_format = output_format.lower()
+        
+        try:
+            if output_format == 'csv':
+                # Convert to DataFrame and export to CSV
+                df = pd.DataFrame(data)
+                df.to_csv(output_path, index=False, encoding='utf-8')
+                return True
+            
+            elif output_format == 'excel':
+                # Convert to DataFrame and export to Excel
+                df = pd.DataFrame(data)
+                df.to_excel(output_path, index=False)
+                return True
+            
+            elif output_format == 'json':
+                # Export to JSON
+                with open(output_path, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, ensure_ascii=False, indent=4)
+                return True
+            
+            else:
+                logger.error(f"Unsupported export format: {output_format}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"Error exporting data: {e}")
+            return False
+    
+    # Generate statistics and reports
+    def generate_statistics(self) -> Dict[str, Any]:
+        """
+        Generate statistics and reports from the database
+        
+        Returns:
+            Dict: Statistics and report data
+        """
+        hotels = self.get_all_hotels()
+        
+        if not hotels:
+            return {"error": "No data available"}
+        
+        # Basic statistics
+        stats = {
+            "total_hotels": len(hotels),
+            "data_sources": {},
+            "countries": {},
+            "cities": {},
+            "average_stars": 0,
+            "hotels_with_coordinates": 0,
+            "hotels_with_website": 0,
+            "hotels_with_phone": 0,
+            "hotels_with_email": 0
+        }
+        
+        # Process each hotel
+        total_stars = 0
+        stars_count = 0
+        
+        for hotel in hotels:
+            # Count data sources
+            source = hotel.get("data_source", "Unknown")
+            stats["data_sources"][source] = stats["data_sources"].get(source, 0) + 1
+            
+            # Count countries
+            country = hotel.get("country", "Unknown")
+            stats["countries"][country] = stats["countries"].get(country, 0) + 1
+            
+            # Count cities
+            city = hotel.get("city", "Unknown")
+            stats["cities"][city] = stats["cities"].get(city, 0) + 1
+            
+            # Count stars
+            if hotel.get("stars"):
+                try:
+                    stars = float(hotel.get("stars"))
+                    total_stars += stars
+                    stars_count += 1
+                except (ValueError, TypeError):
+                    pass
+            
+            # Count hotels with coordinates
+            if hotel.get("latitude") and hotel.get("longitude"):
+                stats["hotels_with_coordinates"] += 1
+            
+            # Count hotels with website
+            if hotel.get("website"):
+                stats["hotels_with_website"] += 1
+            
+            # Count hotels with phone
+            if hotel.get("phone"):
+                stats["hotels_with_phone"] += 1
+            
+            # Count hotels with email
+            if hotel.get("email"):
+                stats["hotels_with_email"] += 1
+        
+        # Calculate average stars
+        stats["average_stars"] = round(total_stars / stars_count, 2) if stars_count > 0 else 0
+        
+        # Calculate percentage of hotels with coordinates
+        stats["percentage_with_coordinates"] = round(stats["hotels_with_coordinates"] / stats["total_hotels"] * 100, 2) if stats["total_hotels"] > 0 else 0
+        
+        # Calculate percentage of hotels with website
+        stats["percentage_with_website"] = round(stats["hotels_with_website"] / stats["total_hotels"] * 100, 2) if stats["total_hotels"] > 0 else 0
+        
+        # Calculate percentage of hotels with phone
+        stats["percentage_with_phone"] = round(stats["hotels_with_phone"] / stats["total_hotels"] * 100, 2) if stats["total_hotels"] > 0 else 0
+        
+        # Calculate percentage of hotels with email
+        stats["percentage_with_email"] = round(stats["hotels_with_email"] / stats["total_hotels"] * 100, 2) if stats["total_hotels"] > 0 else 0
+        
+        return stats
+    
+    # Close database connection
+    def close(self):
+        """Close database connection"""
+        if self.conn:
+            self.conn.close()
+
+
+# Hotel information extraction class from different sources
+# Hotel information extraction class from different sources
+class HotelScraper:
+    """Class for extracting hotel information from different sources"""
+    
+    def __init__(self, api_keys: Dict[str, str] = None):
+        """
+        Initialize hotel information extractor
+        
+        Args:
+            api_keys (Dict): API keys for different services
+        """
+        self.api_keys = api_keys or {}
+    
+    # Search for hotels in a specific area
+    def search_hotels_by_location(self, location: str, radius: int = 5000, language: str = "en") -> List[Dict[str, Any]]:
+        """
+        Search for hotels in a specific area
+        
+        Args:
+            location (str): Location name or coordinates
+            radius (int): Search radius in meters
+            language (str): Search language (en, ar)
+            
+        Returns:
+            List[Dict]: List of hotels in the specified area
+        """
+        results = []
+        
+        # Use Google Places API if key is available
+        if 'google_places' in self.api_keys:
+            google_results = self._search_google_places(location, radius, language)
+            results.extend(google_results)
+        
+        # Use OpenStreetMap/Nominatim (doesn't need API key)
+        osm_results = self._search_openstreetmap(location, radius, language)
+        results.extend(osm_results)
+        
+        # Compare and enrich results
+        self._compare_and_enrich_results(results)
+        
+        # Add more data sources here in the future
+        
+        return results
+    
+    # Search for hotels using Google Places API
+    def _search_google_places(self, location: str, radius: int, language: str = "en") -> List[Dict[str, Any]]:
+        """
+        Search for hotels using Google Places API
+        
+        Args:
+            location (str): Location name or coordinates
+            radius (int): Search radius in meters
+            language (str): Search language (en, ar)
+            
+        Returns:
+            List[Dict]: List of hotels from Google Places
+        """
+        logger.info(f"Searching Google Places for: {location}")
+        
+        try:
+            # Convert location to coordinates if not already
+            coords = self._get_coordinates(location)
+            if not coords:
+                logger.error(f"Could not convert location to coordinates: {location}")
+                return []
+            
+            lat, lng = coords
+            
+            # Create Google Places API request
+            base_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+            
+            # Search using several timeframes to find all accommodations
+            all_results = []
+            
+            # Create list of future dates to search (today, next week, next month, 3 months from now)
+            search_dates = [
+                datetime.now(),
+                datetime.now() + timedelta(days=7),
+                datetime.now() + timedelta(days=30),
+                datetime.now() + timedelta(days=90)
+            ]
+            
+            # Set language for search
+            lang_param = language if language in ['en', 'ar'] else 'en'
+            
+            # Keywords to use in different languages
+            keywords = []
+            if language == 'ar' or language == 'both':
+                keywords.extend(['فندق', 'نزل', 'شقق فندقية', 'منتجع'])
+            if language == 'en' or language == 'both':
+                keywords.extend(['hotel', 'resort', 'lodging', 'accommodation', 'motel', 'hostel', 'inn'])
+            
+            # If no keywords are specified, use default English ones
+            if not keywords:
+                keywords = ['hotel', 'resort', 'lodging', 'accommodation']
+            
+            # Search with each keyword
+            for keyword in keywords:
+                for search_date in search_dates:
+                    # Format date for API
+                    date_str = search_date.strftime("%Y-%m-%d")
+                    
+                    params = {
+                        "location": f"{lat},{lng}",
+                        "radius": radius,
+                        "type": "lodging",  # Place type (hotel)
+                        "keyword": keyword,  # Add keyword search
+                        "key": self.api_keys['google_places'],
+                        "language": lang_param,
+                        # Add date parameters to find more results
+                        "openNow": "true"  # Adding this parameter sometimes helps find more active places
+                    }
+                    
+                    # Send request
+                    response = requests.get(base_url, params=params)
+                    data = response.json()
+                    
+                    # Process results
+                    if data.get('status') == 'OK':
+                        for place in data.get('results', []):
+                            # Check if we've already found this place
+                            place_id = place.get('place_id')
+                            if not any(r.get('place_id') == place_id for r in all_results):
+                                all_results.append(place)
+            
+            # Convert all results to standard format
+            results = []
+            for place in all_results:
+                hotel = {
+                    'name': place.get('name', ''),
+                    'address': place.get('vicinity', ''),
+                    'latitude': place.get('geometry', {}).get('location', {}).get('lat'),
+                    'longitude': place.get('geometry', {}).get('location', {}).get('lng'),
+                    'data_source': 'Google Places',
+                    'stars': place.get('rating'),
+                    'place_id': place.get('place_id'),
+                    # Store place details as additional info
+                    'additional_info': json.dumps({"place_id": place.get('place_id')})
+                }
+                results.append(hotel)
+            
+            return results
+            
+        except Exception as e:
+            logger.error(f"Error searching Google Places: {e}")
+            return []
+if __name__ == "__main__":
+    main()
