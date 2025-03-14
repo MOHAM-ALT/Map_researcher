@@ -1,0 +1,11 @@
+requests
+pandas
+colorama
+tabulate
+rich
+folium
+matplotlib
+numpy
+openpyxl
+beautifulsoup4
+scikit-learn

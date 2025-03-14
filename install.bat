@@ -1,6 +1,6 @@
 @echo off
 echo ===============================================================
-echo       Map_researcher0.3V - Simple Installation
+echo       Map_researcher0.4V - Simple Installation
 echo ===============================================================
 echo.
 
@@ -10,6 +10,7 @@ if not exist exports mkdir exports
 if not exist config mkdir config
 if not exist logs mkdir logs
 if not exist maps mkdir maps
+if not exist cache mkdir cache
 
 :: Check Python version
 echo Checking Python version...
@@ -63,6 +64,17 @@ echo Installing visualization dependencies...
 
 echo Installing database dependencies...
 %pip_cmd% install psycopg2-binary || %pip_cmd% install psycopg2 || echo [WARNING] PostgreSQL support not available.
+
+echo Installing data analysis dependencies...
+%pip_cmd% install numpy openpyxl beautifulsoup4
+
+echo Installing visualization extensions...
+%pip_cmd% install matplotlib
+
+echo Installing machine learning dependencies (optional, may fail on some systems)...
+%pip_cmd% install scikit-learn || echo [WARNING] scikit-learn not installed, some clustering features will be limited.
+
+
 
 :create_launcher
 :: Create run.bat
