@@ -1,11 +1,31 @@
-requests
-pandas
-colorama
-tabulate
-rich
-folium
-matplotlib
-numpy
-openpyxl
-beautifulsoup4
-scikit-learn
+# Core dependencies
+requests>=2.25.0
+pandas>=1.1.0
+colorama>=0.4.4
+numpy>=1.19.0
+
+# UI dependencies
+tabulate>=0.8.7
+rich>=9.8.0
+
+# Web scraping and analysis
+beautifulsoup4>=4.9.0
+selenium>=4.0.0
+webdriver-manager>=3.5.0
+
+# Visualization
+folium>=0.12.0
+matplotlib>=3.3.0
+
+# Data analysis and ML
+scikit-learn>=1.0.0
+nltk>=3.6.0
+networkx>=2.5.0
+
+# Database
+openpyxl>=3.0.0
+psycopg2-binary>=2.8.0
+
+# Utilities
+tqdm>=4.0.0
+pyyaml>=5.0.0
