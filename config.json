@@ -1,0 +1,32 @@
+{
+    "api_keys": {
+      "google_maps": "YOUR_API_KEY_HERE",
+      "openstreetmap": "",
+      "booking": ""
+    },
+    "search_settings": {
+      "default_radius": 5000,
+      "max_results": 200,
+      "min_reviews_count": 3,
+      "default_search_language": "ar"
+    },
+    "machine_learning": {
+      "model_path": "models/hotel_classifier.pkl",
+      "confidence_threshold": 0.6
+    },
+    "database": {
+      "type": "sqlite",
+      "path": "data/hotels.db"
+    },
+    "ui_settings": {
+      "use_rich_output": true,
+      "default_export_format": "excel"
+    },
+    "discovery_modules": {
+      "google_maps": true,
+      "booking_platforms": true,
+      "smart_location": true,
+      "reviews_analysis": true,
+      "pattern_discovery": true
+    }
+  }
